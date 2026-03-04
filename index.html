@@ -16,8 +16,8 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            height: 100vh;
+            min-height: 100dvh;
+            height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -32,7 +32,7 @@
             padding: 20px;
             max-width: 900px;
             width: 100%;
-            height: calc(100vh - 20px);
+            height: calc(100dvh - 20px);
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
@@ -817,7 +817,7 @@
             .container {
                 padding: 10px;
                 border-radius: 15px;
-                height: calc(100vh - 10px);
+                height: calc(100dvh - 10px);
             }
 
             h1 {
@@ -933,7 +933,7 @@
         @media (max-width: 1024px) and (min-width: 769px) {
             .container {
                 padding: 20px;
-                height: calc(100vh - 20px);
+                height: calc(100dvh - 20px);
             }
 
             h1 {
@@ -981,7 +981,7 @@
             .container {
                 padding: 8px;
                 border-radius: 10px;
-                height: calc(100vh - 6px);
+                height: calc(100dvh - 6px);
             }
 
             h1 {
@@ -1631,80 +1631,67 @@
             80%  { opacity: 1; }
             100% { transform: translateY(110vh) rotate(var(--rot)); opacity: 0; }
         }
-    
-/* === Mobile Optimization Patch (2026-03-03) === */
+    </style>
+
+<style id="mobile-optimizations">
+/* --- Mobile optimizations (added) --- */
 :root{
-    --safe-top: env(safe-area-inset-top);
-    --safe-bottom: env(safe-area-inset-bottom);
-    --safe-left: env(safe-area-inset-left);
-    --safe-right: env(safe-area-inset-right);
+  --tap: 44px;
 }
-
+html, body{
+  height: 100%;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
 body{
-    padding: calc(10px + var(--safe-top)) calc(10px + var(--safe-right)) calc(10px + var(--safe-bottom)) calc(10px + var(--safe-left));
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom);
 }
-
-/* Prefer dynamic viewport units on mobile browsers */
-.container{
-    height: calc(100dvh - 20px);
+button, .btn, [role="button"], .clickable, .option, .choice, .quiz-option{
+  min-height: var(--tap);
+  touch-action: manipulation;
 }
-
-/* Prevent iOS auto-zoom on form focus */
-input, select, textarea, button{
-    font-size: 16px;
+input, textarea, select{
+  font-size: 16px; /* prevent iOS zoom */
 }
-
-button, .btn, [role="button"]{
-    min-height: 44px;
-    touch-action: manipulation;
-}
-
-/* Make large grids/tables scroll horizontally on small screens */
-#historyTable{
-    overflow: auto !important;
-    -webkit-overflow-scrolling: touch;
-}
-#historyTable > div{
-    min-width: 720px;
-}
-
-/* Modals / panels shouldn't exceed viewport */
-.modal, .modal-content, .popup, .dialog{
-    max-height: 90dvh;
-}
-
 @media (max-width: 768px){
-    .container{
-        max-width: 100%;
-        height: 100dvh;
-        border-radius: 16px;
-    }
-    /* Reduce shadow for performance */
-    .container{
-        box-shadow: 0 10px 30px rgba(0,0,0,0.22);
-    }
-    /* Tighter spacing and easier tapping */
-    .mode-selector{
-        gap: 10px;
-    }
+  /* layout tighten */
+  .container, .main-container, #app, #root{
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  /* make top nav / tabs wrap instead of overflow */
+  .tabs, .tab-row, .nav, .top-nav{
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  /* quiz choices: bigger and more readable */
+  .quiz-options, .options, .choices{
+    gap: 10px !important;
+  }
+  .quiz-option, .option, .choice{
+    padding: 14px 12px !important;
+    font-size: 16px !important;
+    line-height: 1.25 !important;
+  }
+  /* long tables/boards scroll horizontally */
+  .table-wrap, .history-wrap, #historyTable, table{
+    max-width: 100%;
+  }
+  #historyTable, .history-table, table{
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* prevent huge side margins from desktop backgrounds */
+  body{
+    background-attachment: scroll !important;
+  }
 }
-
-@media (max-width: 480px){
-    body{
-        padding: calc(6px + var(--safe-top)) calc(6px + var(--safe-right)) calc(6px + var(--safe-bottom)) calc(6px + var(--safe-left));
-    }
-    .container{
-        border-radius: 12px;
-    }
-    /* Long buttons: full width */
-    .mode-selector button,
-    .menu button,
-    .actions button{
-        width: 100%;
-    }
-}
-
 </style>
+
 </head>
 <body>
     <div class="container">
@@ -6330,10 +6317,10 @@ function pruneSlangTodaySet() {
 
             const correctMeaning = word.meaning;
             // 정답 제외한 오답 풀 (중복 제거)
-            const wrongPool = [...new Set(
+            let wrongPool = [...new Set(
                 allWords.map(w => w.meaning).filter(m => m !== correctMeaning)
             )];
-            shuffleArray(wrongPool);
+            wrongPool = shuffleArray(wrongPool);
             // 오답이 3개 미만이면 더미로 채움
             while (wrongPool.length < 3) wrongPool.push(`오답 ${wrongPool.length + 1}`);
             const options = shuffleArray([correctMeaning, ...wrongPool.slice(0, 3)]);
